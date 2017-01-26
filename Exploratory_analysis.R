@@ -1,0 +1,21 @@
+install.packages("RISmed")
+library(RISmed)
+search_topic <- "schizophrenia[Title/Abstract] AND incidence[Title/Abstract]"
+search_query <- EUtilsSummary(search_topic, retmax=20000)
+str(search_query)
+records <- EUtilsGet(search_query)
+getSlots("Medline")
+length(PMID(records))
+hist(YearPubmed(records), breaks=seq(1950,2017,1))
+CountryPub <- as.data.frame(matrix(nrow=56, ncol=2))
+colnames(CountryPub) <- c("Country", "Number_of_publications")
+CountryPub$Country <-names(table(Country(records)))
+CountryPub$Number_of_publications <- table(Country(records))
+library(rworldmap)
+worldMap <- getMap("world")
+spdf <- joinCountryData2Map(CountryPub, joinCode="NAME", nameJoinColumn="Country")
+mapCountryData(spdf, nameColumnToPlot="Number_of_publications", catMethod="fixedWidth")
+length(unique(ArticleTitle(records)))
+table(Language(records))
+ArticleTitle(records)[Language(records) == "chi"]
+AbstractText(records)[Language(records) == "chi"]
