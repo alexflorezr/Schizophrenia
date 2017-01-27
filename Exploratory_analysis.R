@@ -51,13 +51,14 @@ abstractCorpus <- tm_map(abstractCorpus, stemDocument,mc.cores = 1)
 abstractCorpus <- tm_map(abstractCorpus, stemCompletion,dicitionary=abstractCorpus, type="prevalence",mc.cores = 1)
 wordcloud(abstractCorpus, max.words = 100, random.order = FALSE)
 # World cloud for the Mesh terms associated to each paper
-MeshCorpus <- Corpus(VectorSource(Mesh(records)))
+MeshRecords <- Mesh(records)
+Mesh_nonNA <- MeshRecords[sapply(MeshRecords, is.data.frame)]
+Mesh_Headings <- lapply(Mesh_nonNA, function(x) x$Heading)
+MeshCorpus <- Corpus(VectorSource(Mesh_Headings))
 MeshCorpus <- tm_map(MeshCorpus, PlainTextDocument, mc.cores = 1)
 MeshCorpus <- tm_map(MeshCorpus, removePunctuation, mc.cores = 1)
 MeshCorpus <- tm_map(MeshCorpus, removeNumbers, mc.cores = 1)
-MeshCorpus <- tm_map(MeshCorpus, removeWords, c(stopwords('english'), "Descriptor","Qualifier") , mc.cores = 1)
-MeshCorpus <- tm_map(MeshCorpus, stemDocument,mc.cores = 1)
-MeshCorpus <- tm_map(MeshCorpus, stemCompletion,dicitionary=MeshCorpus, type="prevalence",mc.cores = 1)
+MeshCorpus <- tm_map(MeshCorpus, removeWords, c(stopwords('english'), "the", "this") , mc.cores = 1)
 wordcloud(MeshCorpus, max.words = 100, random.order = FALSE)
 # World cloud for the titles
 TitleCorpus <- Corpus(VectorSource(ArticleTitle(records)))
