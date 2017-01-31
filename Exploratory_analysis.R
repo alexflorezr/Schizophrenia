@@ -11,7 +11,22 @@ getSlots("Medline")
 # Number of records
 length(PMID(records))
 # Histogram for records per year
-hist(YearPubmed(records), breaks=seq(1950,2017,1))
+par(lwd=1.5, mar=c(6,6,4,4))
+hist(YearPubmed(records), breaks=seq(1950,2017,1),
+     xlim=c(1950, 2017),
+     ylim=c(0,150),
+     main=NA,
+     xlab="Año de publicación",
+     ylab="Número de artículos",
+     xaxt="n",
+     xaxs="i",
+     yaxt="n",
+     yaxs="i",
+     col="#838B83",
+     border="white")
+axis(1, at=(seq(1950, 2015, 5)), las=3)
+axis(2, at=(seq(0, 150, 25)))
+abline(h=25, lty=3)
 # Plot the map for the countries were the studies were performed
 library(rworldmap)
 CountryPub <- as.data.frame(matrix(nrow=56, ncol=2))
@@ -35,7 +50,13 @@ for(row in seq_along(CountryPub[,1])){
   }
 }
 spdf <- joinCountryData2Map(CountryPub, joinCode="NAME", nameJoinColumn="Country")
-mapCountryData(spdf, nameColumnToPlot="Quantile", col=c("red", "green", "blue", "black"))
+par(mar=c(5,5,5,5))
+mapCountryData(spdf, nameColumnToPlot="Number_of_publications",
+               borderCol = "black",
+               catMethod = "categorical",
+               numCats = 1,
+               addLegend = T,
+               lwd =0.5)
 # World cloud for the abstracts
 library(tm)
 library(SnowballC)
@@ -45,10 +66,10 @@ abstractCorpus <- Corpus(VectorSource(AbstractText(records)))
 abstractCorpus <- tm_map(abstractCorpus, PlainTextDocument, mc.cores = 1)
 abstractCorpus <- tm_map(abstractCorpus, removePunctuation, mc.cores = 1)
 abstractCorpus <- tm_map(abstractCorpus, removeNumbers, mc.cores = 1)
-abstractCorpus <- tm_map(abstractCorpus, tolower)
-abstractCorpus <- tm_map(abstractCorpus, removeWords, stopwords('english'), mc.cores = 1)
-abstractCorpus <- tm_map(abstractCorpus, stemDocument,mc.cores = 1)
-abstractCorpus <- tm_map(abstractCorpus, stemCompletion,dicitionary=abstractCorpus, type="prevalence",mc.cores = 1)
+#abstractCorpus <- tm_map(abstractCorpus, tolower)
+abstractCorpus <- tm_map(abstractCorpus, removeWords, c(stopwords('english'), "the", "this", "there"), mc.cores = 1)
+#abstractCorpus <- tm_map(abstractCorpus, stemDocument,mc.cores = 1)
+#abstractCorpus <- tm_map(abstractCorpus, stemCompletion,dicitionary=abstractCorpus, type="prevalence",mc.cores = 1)
 wordcloud(abstractCorpus, max.words = 100, random.order = FALSE)
 # World cloud for the Mesh terms associated to each paper
 MeshRecords <- Mesh(records)
@@ -66,8 +87,8 @@ TitleCorpus <- tm_map(TitleCorpus, PlainTextDocument, mc.cores = 1)
 TitleCorpus <- tm_map(TitleCorpus, removePunctuation, mc.cores = 1)
 TitleCorpus <- tm_map(TitleCorpus, removeNumbers, mc.cores = 1)
 TitleCorpus <- tm_map(TitleCorpus, removeWords, c("the", "this", stopwords('english')), mc.cores = 1)
-TitleCorpus <- tm_map(TitleCorpus, stemDocument,mc.cores = 1)
-wordcloud(TitleCorpus, max.words = 100, random.order = FALSE, colors = c("green", "yellow", "orange", "brown"))
+#TitleCorpus <- tm_map(TitleCorpus, stemDocument,mc.cores = 1)
+wordcloud(TitleCorpus, max.words = 100, random.order = FALSE)
 
 
 
